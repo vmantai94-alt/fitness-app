@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-main-button',
@@ -7,5 +7,10 @@ import { Component } from '@angular/core';
   styleUrl: './main-button.css',
 })
 export class MainButton {
+  @Output() buttonClicked = new EventEmitter<void>();
 
+  toggleInputs() {
+    console.log('Button clicked in MainButton');
+    this.buttonClicked.emit();
+  }
 }

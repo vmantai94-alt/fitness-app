@@ -1,7 +1,32 @@
-.add-member-container {
+.add-member-component {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
+  flex-direction: column;
+  height: fit-content;
   width: 100%;
+  padding: 0 10%;
+}
+
+.slide-down {
+  animation: slideDown 0.5s ease-in-out;
+  overflow: hidden;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-80px);
+  }
+  to {
+    opacity: 1;
+    max-height: fit-content;
+    transform: translateY(0);
+  }
+}
+
+.input-group {
+  margin-top: 30px;
+  transition: all 0.5s ease-in-out;
 }

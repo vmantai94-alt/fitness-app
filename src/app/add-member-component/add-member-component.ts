@@ -7,4 +7,10 @@ import { MainButton } from '../shared/components/main-button/main-button';
   templateUrl: './add-member-component.html',
   styleUrl: './add-member-component.css',
 })
-export class AddMemberComponent {}
+export class AddMemberComponent {
+  showInputs = false;
+
+  toggleInputs() {
+    this.showInputs = !this.showInputs;
+  }
+}
