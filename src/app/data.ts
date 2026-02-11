@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Member } from './shared/models/member';
 
 @Injectable({
   providedIn: 'root',
@@ -11,19 +12,19 @@ export class Data {
 
   constructor(private http: HttpClient) {}
 
-  getItems(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}`);
+  getItems(): Observable<Member[]> {
+    return this.http.get<Member[]>(`${this.apiUrl}`);
   }
 
-  addItem(item: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}`, item);
+  addItem(item: Member): Observable<Member> {
+    return this.http.post<Member>(`${this.apiUrl}`, item);
   }
 
-  updateItem(id: number, data: any) {
-    return this.http.put(`${this.apiUrl}/members/${id}/`, data);
+  updateItem(id: number, data: Member) {
+    return this.http.patch(`${this.apiUrl}/${id}/`, data);
   }
 
-  deleteItem(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/items/${id}/`);
+  deleteItem(id: number): Observable<Member> {
+    return this.http.delete<Member>(`${this.apiUrl}/${id}/`);
   }
 }

@@ -1,4 +1,56 @@
 <div class="section-container">
+  <!-- Formular zum Hinzufügen/Bearbeiten -->
+  <div class="form-container rounded-3 mb-4 p-4 bg-dark">
+    <h3 class="text-light mb-3">
+      {{ isEditing() ? 'User bearbeiten' : 'Neuer User' }}
+    </h3>
+    <form (ngSubmit)="onSubmit()" class="row g-3">
+      <div class="col-md-4">
+        <input
+          type="text"
+          class="form-control"
+          [value]="formData().first_name"
+          (input)="updateFormField('first_name', $any($event.target).value)"
+          placeholder="Vorname"
+          required
+        />
+      </div>
+
+      <div class="col-md-4">
+        <input
+          type="text"
+          class="form-control"
+          [value]="formData().last_name"
+          (input)="updateFormField('last_name', $any($event.target).value)"
+          placeholder="Nachname"
+          required
+        />
+      </div>
+
+      <div class="col-md-4">
+        <input
+          type="email"
+          class="form-control"
+          [value]="formData().email"
+          (input)="updateFormField('email', $any($event.target).value)"
+          placeholder="Email"
+          required
+        />
+      </div>
+
+      <div class="col-12">
+        <button type="submit" class="btn btn-outline-success me-2">
+          {{ isEditing() ? 'Aktualisieren' : 'Hinzufügen' }}
+        </button>
+
+        @if (isEditing()) {
+          <button type="button" class="btn btn-secondary" (click)="resetForm()">Abbrechen</button>
+        }
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabelle -->
   <div class="table-container rounded-3">
     <table class="table table-dark table-striped table-hover align-middle">
       <thead>
@@ -18,7 +70,7 @@
             <td>{{ user.last_name }}</td>
             <td>{{ user.email }}</td>
             <td class="text-center">
-              <button class="btn btn-sm btn-outline-primary me-2" (click)="editUser(user)">
+              <button class="btn btn-sm btn-outline-primary me-2" (click)="startEdit(user)">
                 Bearbeiten
               </button>
               <button class="btn btn-sm btn-outline-danger" (click)="deleteUser(user.id)">
