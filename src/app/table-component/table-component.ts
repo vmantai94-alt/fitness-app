@@ -10,8 +10,17 @@ import { Data } from '../data';
   styleUrls: ['./table-component.css'],
 })
 export class TableComponent implements OnInit {
-  // 1. Initialisiere das Signal mit einem leeren Array
   items = signal<any[]>([]);
+
+  // Für das Formular
+  isEditing = signal<boolean>(false);
+  editingId = signal<number | null>(null);
+  formData = signal<any>({
+    first_name: '',
+    last_name: '',
+    email: '',
+    // ... weitere Felder aus deinem Django Model
+  });
 
   constructor(private dataService: Data) {}
 
@@ -22,7 +31,6 @@ export class TableComponent implements OnInit {
   fetchData(): void {
     this.dataService.getItems().subscribe({
       next: (data) => {
-        // 2. Setze den neuen Wert im Signal
         this.items.set(data);
         console.log('Daten im Signal gespeichert:', data);
       },
@@ -30,23 +38,35 @@ export class TableComponent implements OnInit {
     });
   }
 
-  editUser(user: any): void {
-    console.log('Bearbeiten-Modus für:', user);
+  // NEU: Hinzufügen
+  addUser(): void {
+    this.dataService.addItem(this.formData()).subscribe({
+      next: (newUser) => {
+        // Signal aktualisieren: neuen User hinzufügen
+        this.items.update((currentItems) => [...currentItems, newUser]);
+        this.resetForm();
+        console.log('User erfolgreich hinzugefügt!');
+      },
+      error: (err) => console.error('Fehler beim Hinzufügen:', err),
+    });
+  }
 
-    // Ein einfacher Prompt zum Testen, ob es geht:
-    const newName = prompt('Vorname ändern:', user.first_name);
+  // Verbesserte Edit-Funktion
+  startEdit(user: any): void {
+    this.isEditing.set(true);
+    this.editingId.set(user.id);
+    this.formData.set({ ...user }); // Kopiere die Daten ins Formular
+  }
 
-    if (newName !== null && newName !== user.first_name) {
-      // Hier erstellen wir ein Objekt mit den neuen Daten
-      const updatedUser = { ...user, first_name: newName };
-
-      // Aufruf an den Data-Service (PUT Request)
-      this.dataService.updateItem(user.id, updatedUser).subscribe({
-        next: (res) => {
-          // Das Signal aktualisieren, damit die Tabelle sofort den neuen Namen zeigt
+  updateUser(): void {
+    const id = this.editingId();
+    if (id !== null) {
+      this.dataService.updateItem(id, this.formData()).subscribe({
+        next: (updatedUser) => {
           this.items.update((currentItems) =>
-            currentItems.map((item) => (item.id === user.id ? res : item)),
+            currentItems.map((item) => (item.id === id ? updatedUser : item)),
           );
+          this.resetForm();
           console.log('Update erfolgreich!');
         },
         error: (err) => console.error('Fehler beim Update:', err),
@@ -55,11 +75,37 @@ export class TableComponent implements OnInit {
   }
 
   deleteUser(id: number): void {
-    if (confirm('Löschen?')) {
-      this.dataService.deleteItem(id).subscribe(() => {
-        // 3. Signal aktualisieren (Eintrag lokal entfernen)
-        this.items.update((currentItems) => currentItems.filter((item) => item.id !== id));
+    if (confirm('Möchtest du diesen User wirklich löschen?')) {
+      this.dataService.deleteItem(id).subscribe({
+        next: () => {
+          this.items.update((currentItems) => currentItems.filter((item) => item.id !== id));
+          console.log('User erfolgreich gelöscht!');
+        },
+        error: (err) => console.error('Fehler beim Löschen:', err),
       });
     }
+  }
+
+  // Helper-Methoden
+  onSubmit(): void {
+    if (this.isEditing()) {
+      this.updateUser();
+    } else {
+      this.addUser();
+    }
+  }
+
+  resetForm(): void {
+    this.isEditing.set(false);
+    this.editingId.set(null);
+    this.formData.set({
+      first_name: '',
+      last_name: '',
+      email: '',
+    });
+  }
+
+  updateFormField(field: string, value: any): void {
+    this.formData.update((current) => ({ ...current, [field]: value }));
   }
 }
